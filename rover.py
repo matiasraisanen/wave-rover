@@ -27,15 +27,22 @@ class Rover:
         if self.ser.isOpen():
             self.ser.close()
 
-    def send_json(self, data):
+    def send_json(self, data, wait_for_response=False):
         if self.ser.isOpen():
             json_data = json.dumps(data)
             self.logger.log.debug(f"Sending JSON command: {json_data}")
             self.ser.write(json_data.encode())
-            time.sleep(0.05)  # give the device time to respond
-            response = json.loads(self.ser.read_all().decode().strip())
-            self.logger.log.debug(f"Command response: {response}")
-            return response
+            if wait_for_response:
+                time.sleep(0.1)  # give the device time to respond
+                response = self.ser.readline().decode().strip()
+
+                try:
+                    response_json = json.loads(response)
+                except:
+                    self.logger.log.error(f"Could not parse JSON response: {response}")
+                    return None
+                self.logger.log.debug(f"Command response: {response_json}")
+                return response_json
 
     def oled_set(self, line, text):
         if len(text) > 22:
