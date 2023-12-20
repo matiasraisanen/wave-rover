@@ -232,7 +232,8 @@ class Rover:
         For obtaining WIFI information.
         """
         WIFI_INFO = {"T": 65}
-        self.send_json(WIFI_INFO)
+        data = self.send_json(WIFI_INFO, wait_for_response=True)
+        self.logger.log.debug(f"Wifi info: {data}")
 
     def wifi_off(self):
         """
@@ -246,7 +247,7 @@ class Rover:
         Get information about the INA219, including the voltage and current power of the power supply.
         """
         INA219_INFO = {"T": 70}
-        info = self.send_json(INA219_INFO)
+        info = self.send_json(INA219_INFO, wait_for_response=True)
 
         # make sure no property is None
         for key in info:
@@ -267,18 +268,12 @@ class Rover:
         if battery_percentage < 0:
             battery_percentage = 0
 
-        # print("PSU Voltage:   {:6.3f} V".format(bus_voltage + shunt_voltage))
-        # print("Shunt Voltage: {:9.6f} V".format(shunt_voltage))
-        # print("Load Voltage:  {:6.3f} V".format(bus_voltage))
-        # print("Current:       {:9.6f} A".format(current))
-        # print("Power:         {:6.3f} W".format(power))
         self.logger.log.debug("Battery:        {:3.1f}%".format(battery_percentage))
-        self.logger.log.debug("Shunt Voltage: {:9.6f} V".format(shunt_voltage))
+        self.logger.log.debug("Shunt Voltage:  {:9.6f} V".format(shunt_voltage))
         self.logger.log.debug("Bus Voltage:    {:6.3f} V".format(bus_voltage))
         self.logger.log.debug("Load Voltage:   {:6.3f} V".format(load_voltage))
-        self.logger.log.debug("Current:        {:9.6f} A".format(current))
-        self.logger.log.debug("Power:          {:6.3f} W".format(power))
-        # print("")
+        self.logger.log.debug("Current:        {:9.6f} mA".format(current))
+        self.logger.log.debug("Power:          {:6.3f} mW".format(power))
 
     def imu_info(self):
         """
@@ -334,7 +329,8 @@ class Rover:
         Used to get the device information, the device information is required to be customized by the user, used to introduce the use of this device or other information.
         """
         DEVICE_INFO = {"T": 74}
-        self.send_json(DEVICE_INFO)
+        data = self.send_json(DEVICE_INFO, wait_for_response=True)
+        self.logger.log.debug(f"Device info: {data}")
 
     def io_ir_cut(self, status):
         """
@@ -357,7 +353,8 @@ class Rover:
         Get the power coefficients of the left and right side motors.
         """
         GET_SPD_RATE = {"T": 902}
-        self.send_json(GET_SPD_RATE)
+        data = self.send_json(GET_SPD_RATE, wait_for_response=True)
+        self.logger.log.debug(f"Speed rate: {data}")
 
     def spd_rate_save(self):
         """
@@ -371,7 +368,8 @@ class Rover:
         Get the remaining space in the nvs area of ESP32.
         """
         GET_NVS_SPACE = {"T": 904}
-        self.send_json(GET_NVS_SPACE)
+        data = self.send_json(GET_NVS_SPACE, wait_for_response=True)
+        self.logger.log.debug(f"Remaining nvs space: {data}")
 
     def nvs_clear(self):
         """
@@ -381,6 +379,7 @@ class Rover:
         self.send_json(NVS_CLEAR)
 
     def get_rover_power_state(self, data):
+        # THis doesnt work properly yet
         if data["shunt_mV"] < 0 and data["load_V"] < 1:
             state = "Charger: OFF, PowerSwitch: OFF"
         elif data["shunt_mV"] < 0 and data["load_V"] > 1:
@@ -401,11 +400,10 @@ if __name__ == "__main__":
     port = "/dev/ttyUSB0"
     rover = Rover(port)
 
-    # rover.oled_set(0, "Hello")
-    # rover.oled_set(1, "World")
-    # rover.oled_set(2, "Hello")
-    # rover.oled_set(3, "World")
-    rover.ina219_info()
+    # rover.ina219_info()
+    # rover.imu_info()
     # time.sleep(2)
     # rover.oled_default()
+    # rover.wifi_scan()
+    rover.speed_input(100, 100)
     rover.close_connection()
