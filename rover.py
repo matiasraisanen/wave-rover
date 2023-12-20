@@ -23,6 +23,22 @@ class Rover:
             return self.ser.read_all().decode().strip()
             # return self.ser.readline().decode().strip()
 
+    def process_input_data(self, key_type, key_number, key_value, percentage=None):
+        # self.speed_input(100, 100)
+        # print(data)
+        # print(f"KeyNumber: {key_number} Value: {key_value} Percentage: {percentage}")
+        max_speed = 255
+        speed = 0
+
+        if key_number == 5:
+            # print(f"Forwards at speed: {percentage}%", end="\r")
+            speed = int((percentage / 100) * max_speed)
+        if key_number == 2:
+            # print(f"Reverse at speed: {percentage}%", end="\r")
+            speed = int((percentage / 100) * max_speed) * -1
+
+        self.speed_input(speed, speed)
+
     def close_connection(self):
         if self.ser.isOpen():
             self.ser.close()
