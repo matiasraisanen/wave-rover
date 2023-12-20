@@ -18,7 +18,7 @@ class Logger:
         self,
         module_name: str,
         log_file: str = "debug.log",
-        log_level: int = logging.DEBUG,
+        log_level: int = logging.INFO,
         delete_old_logfile: bool = True,
     ):
         self.log_file = log_file
@@ -30,7 +30,6 @@ class Logger:
         self.log.setLevel(log_level)
 
         # Only root level logger should delete old log file.
-        # Disable this if you want to retain logs.
         if module_name == "__main__" and delete_old_logfile:
             self.delete_old_logfile()
 
