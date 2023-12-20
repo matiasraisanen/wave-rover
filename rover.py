@@ -262,7 +262,42 @@ class Rover:
         Used to obtain IMU information, including heading angle, geomagnetic field, acceleration, attitude, temperature, etc.
         """
         IMU_INFO = {"T": 71}
-        self.send_json(IMU_INFO)
+        data = self.send_json(IMU_INFO, wait_for_response=True)
+
+        if data is None:
+            self.logger.log.error("Could not get IMU data")
+            return
+        if isinstance(data, str):
+            data = json.loads(data)
+
+        temp = data["temp"]
+        roll = data["roll"]
+        pitch = data["pitch"]
+        yaw = data["yaw"]
+        acce_X = data["acce_X"]
+        acce_Y = data["acce_Y"]
+        acce_Z = data["acce_Z"]
+        gyro_X = data["gyro_X"]
+        gyro_Y = data["gyro_Y"]
+        gyro_Z = data["gyro_Z"]
+        magn_X = data["magn_X"]
+        magn_Y = data["magn_Y"]
+        magn_Z = data["magn_Z"]
+
+        self.logger.log.debug(f"Temperature: {temp}")
+        self.logger.log.debug(f"Roll: {roll}")
+        self.logger.log.debug(f"Pitch: {pitch}")
+        self.logger.log.debug(f"Yaw: {yaw}")
+        self.logger.log.debug(f"Acceleration X: {acce_X}")
+        self.logger.log.debug(f"Acceleration Y: {acce_Y}")
+        self.logger.log.debug(f"Acceleration Z: {acce_Z}")
+        self.logger.log.debug(f"Gyro X: {gyro_X}")
+        self.logger.log.debug(f"Gyro Y: {gyro_Y}")
+        self.logger.log.debug(f"Gyro Z: {gyro_Z}")
+        self.logger.log.debug(f"Magnetometer X: {magn_X}")
+        self.logger.log.debug(f"Magnetometer Y: {magn_Y}")
+        self.logger.log.debug(f"Magnetometer Z: {magn_Z}")
+        # self.logger.log.debug(f"IMU data: {data}")
 
     def encoder_info(self):
         """
