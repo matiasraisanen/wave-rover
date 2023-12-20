@@ -5,7 +5,7 @@ from inputDeviceReader import InputDeviceReader
 import threading
 
 
-class Robot:
+class Main:
     def __init__(self):
         self.rover = Rover()
         self.logger = Logger(
@@ -24,5 +24,5 @@ class Robot:
 
 
 # Usage
-robot = Robot()
+robot = Main()
 robot.start()
