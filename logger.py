@@ -1,24 +1,28 @@
 import logging
 import os
 
-# Reporterer is a class that handles logging to a file.
+# Logger is a class that handles logging to a file.
 #
 # Usage:
-# from Reporter import Reporter
-# reporter = Reporter(module_name=__name__, log_file='debug.log', log_level=logging.INFO)
-# reporter.logger.info('This is info')
-# reporter.logger.debug('This is debug')
-# reporter.logger.warning('This is warning')
-# reporter.logger.error('This is error')
-# reporter.logger.critical('This is critical')
+# from logger import Logger
+# self.logger = Logger(
+#     module_name=__name__,
+#     log_file="main.log",
+#     log_level=logging.DEBUG,
+#     delete_old_logfile=True,
+# )
+# self.logger.log.debug("This is debug")
+# self.logger.log.info("This is info")
 
 
 class Logger:
     def __init__(
         self,
         module_name: str,
-        log_file: str = "debug.log",
         log_level: int = logging.INFO,
+        streamhandler: bool = False,
+        filehandler: bool = False,
+        log_file: str = "debug.log",
         delete_old_logfile: bool = True,
     ):
         self.log_file = log_file
@@ -33,8 +37,11 @@ class Logger:
         if module_name == "__main__" and delete_old_logfile:
             self.delete_old_logfile()
 
-        # Finally create the file handler and the class is ready to be used.
-        self.create_file_handler()
+        # Finally create the handlers and the class is ready to be used.
+        if filehandler:
+            self.create_file_handler()
+        if streamhandler:
+            self.create_stream_handler()
 
     def create_file_handler(self):
         formatter = logging.Formatter(
@@ -46,6 +53,19 @@ class Logger:
         fileHandler.setFormatter(formatter)
         fileHandler.setLevel(self.log_level)
         self.log.addHandler(fileHandler)
+        self.log.info(f"Initializing {self.module_name} module")
+        self.log.info(f"Logging to [{self.log_file}] at level [{self.log_level_name}]")
+
+    def create_stream_handler(self):
+        formatter = logging.Formatter(
+            fmt="[%(asctime)s]-[%(name)s]-[%(levelname)s]: %(message)s",
+            datefmt="%H:%M:%S",
+        )
+
+        streamHandler = logging.StreamHandler()
+        streamHandler.setFormatter(formatter)
+        streamHandler.setLevel(self.log_level)
+        self.log.addHandler(streamHandler)
         self.log.info(f"Initializing {self.module_name} module")
         self.log.info(f"Logging to [{self.log_file}] at level [{self.log_level_name}]")
 
