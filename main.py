@@ -7,22 +7,29 @@ import threading
 
 class Main:
     def __init__(self):
-        self.rover = Rover()
         self.logger = Logger(
             module_name=__name__,
-            log_file="rover.log",
             log_level=logging.DEBUG,
+            streamhandler=True,
+            filehandler=True,
+            log_file="rover.log",
             delete_old_logfile=True,
         )
+
+        self.rover = Rover()
         self.reader = InputDeviceReader()
 
     def start(self):
-        thread = threading.Thread(
-            target=self.reader.read_events, args=(self.rover.process_input_data,)
-        )
-        thread.start()
+        # thread = threading.Thread(
+        #     target=self.reader.read_events, args=(self.rover.process_input_data,)
+        # )
+        # thread.start()
+
+        self.reader.read_events(self.rover.process_input_state)
 
 
-# Usage
-robot = Main()
-robot.start()
+if __name__ == "__main__":
+    robot = Main()
+    # robot.rover.device_info()
+    # robot.rover.imu_info()
+    robot.start()
