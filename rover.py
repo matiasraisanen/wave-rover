@@ -14,15 +14,19 @@ class Rover:
             module_name=__name__,
             log_file="rover.log",
             log_level=logging.DEBUG,
+            streamhandler=True,
+            filehandler=True,
             delete_old_logfile=True,
         )
         self.ser = serial.Serial(port, baudrate)
+        self.MAX_SPEED = 255
 
     def read_data(self):
         if self.ser.isOpen():
             return self.ser.read_all().decode().strip()
             # return self.ser.readline().decode().strip()
 
+    # def process_input_data(self, key_type, key_number, key_value, percentage=None):
     def process_input_data(self, key_type, key_number, key_value, percentage=None):
         # self.speed_input(100, 100)
         # print(data)
@@ -38,6 +42,55 @@ class Rover:
             speed = int((percentage / 100) * max_speed) * -1
 
         self.speed_input(speed, speed)
+
+    def process_input_state(self, key_states):
+        self.logger.log.debug(f"Key states: {key_states}")
+        speed = 0
+        speed_reduction_left = 1
+        speed_reduction_right = 1
+
+        if key_states[2] == 0 and key_states[5] == 0:
+            self.speed_input(0, 0)
+            self.logger.log.debug("Stop")
+        else:
+            # key 0 is left joystick X axis. If it is not 0, we need to reduce the speed of the opposite wheel.
+            if key_states[0] < 0:
+                speed_reduction_right = 1 - (key_states[0] * -1 / 100)
+            elif key_states[0] > 0:
+                speed_reduction_left = 1 - (key_states[0] / 100)
+
+            # Determine wheel speed
+            if key_states[5] > 0:
+                left_speed = int(
+                    ((key_states[5] * speed_reduction_left) / 100) * self.MAX_SPEED
+                )
+                right_speed = int(
+                    ((key_states[5] * speed_reduction_right) / 100) * self.MAX_SPEED
+                )
+            if key_states[2] > 0:
+                left_speed = (
+                    int(((key_states[2] * speed_reduction_left) / 100) * self.MAX_SPEED)
+                    * -1
+                )
+                right_speed = (
+                    int(
+                        ((key_states[2] * speed_reduction_right) / 100) * self.MAX_SPEED
+                    )
+                    * -1
+                )
+                # self.logger.log.debug(f"Reverse at speed: {key_states[2]}%")
+                # speed = int((key_states[2] / 100) * self.MAX_SPEED) * -1
+
+            self.speed_input(left_speed, right_speed)
+        # for key_name, key_value in key_states.items():
+        #     self.logger.log.debug(f"{key_name}: {key_value}")
+        #     if key_name == 5:
+        #         self.logger.log.debug(f"Forward at speed: {key_value}")
+        #         speed = int((key_value / 100) * self.MAX_SPEED)
+        #     if key_name == 2:
+        #         self.logger.log.debug(f"Reverse at speed: {key_value}")
+        #         speed = int((key_value / 100) * self.MAX_SPEED) * -1
+        #     self.speed_input(speed, speed)
 
     def close_connection(self):
         if self.ser.isOpen():
@@ -316,6 +369,7 @@ class Rover:
         self.logger.log.debug(f"Magnetometer Y: {magn_Y}")
         self.logger.log.debug(f"Magnetometer Z: {magn_Z}")
         # self.logger.log.debug(f"IMU data: {data}")
+        return data
 
     def encoder_info(self):
         """
@@ -331,6 +385,7 @@ class Rover:
         DEVICE_INFO = {"T": 74}
         data = self.send_json(DEVICE_INFO, wait_for_response=True)
         self.logger.log.debug(f"Device info: {data}")
+        return data
 
     def io_ir_cut(self, status):
         """
