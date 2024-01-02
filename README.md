@@ -4,6 +4,10 @@
 > [!TIP]
 > [Wave Rover Wiki](https://www.waveshare.com/wiki/WAVE_ROVER)
 
+> [!TIP]
+> [XONE for using XBOX controller in Linux](https://github.com/medusalix/xone
+)
+
 # wave-rover
 A program for communicating with the Waveshare WaveRover platform.
 
