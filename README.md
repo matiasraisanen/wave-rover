@@ -13,6 +13,8 @@ A program for communicating with the Waveshare WaveRover platform.
 
 # Usage
 ```python
-pip install -r requirements.txt
+python3 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install -r requirements.txt
 python main.py
 ```
